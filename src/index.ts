@@ -22,7 +22,6 @@ const QUESTIONS = [
     }
 ];
 
-
 inquirer.prompt(QUESTIONS)
     .then(answers => {
 
