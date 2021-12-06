@@ -22,11 +22,6 @@ const QUESTIONS = [
     }
 ];
 
-//@todo Ask for the target github user name.
-//@todo upload to new repository.
-//@todo check if user already logged in. if not promt for login. (uploader/admin)
-//@todo add target user as collaborator.
-
 
 inquirer.prompt(QUESTIONS)
     .then(answers => {
