@@ -11,3 +11,54 @@ export const askForSourceUrl = async () => {
             return answer.source;
         });
 }
+export const askForChallengeName = async () => {
+    console.log('Asking for askForChallengeName >>>');
+
+    return await inquirer.prompt(QUESTIONS[1])
+        .then(async answers => {
+            let answer: any = Object.assign({}, answers);
+            console.log('Got Challenge Name: ', answer.challenge_name);
+            /* slugify the challenge name */
+            let slug = answer.challenge_name.replace(/\s+/g, '-').toLowerCase();
+            return slug;
+        });
+}
+
+export const askForRepositoryType = async () => {
+    console.log('Asking for askForRepositoryType >>>');
+    return await inquirer.prompt(QUESTIONS[2])
+        .then(async answers => {
+            let answer: any = Object.assign({}, answers);
+            return answer.repo_type;
+        });
+}
+
+export const askForOwnGithubUsername = async () => {
+    console.log('Asking for askForOwnGithubUsername >>>');
+
+    return await inquirer.prompt(QUESTIONS[3])
+        .then(async answers => {
+            let answer: any = Object.assign({}, answers);
+            return answer.own_github_username;
+        });
+}
+
+export const askForOrganizationGithubSlug = async () => {
+    console.log('Asking for askForOrganizationGithubSlug >>>');
+
+    return await inquirer.prompt(QUESTIONS[4])
+        .then(async answers => {
+            let answer: any = Object.assign({}, answers);
+            return answer.organization_github_slug;
+        });
+}
+
+export const askForParticipantUsername = async () => {
+    console.log('Asking for askForParticipantUsername >>>');
+
+    return await inquirer.prompt(QUESTIONS[5])
+        .then(async answers => {
+            let answer: any = Object.assign({}, answers);
+            return answer.participant_username;
+        });
+}
