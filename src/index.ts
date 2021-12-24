@@ -1,32 +1,17 @@
 #!/usr/bin/env node
 
-import * as inquirer from 'inquirer';
-import * as yargs from 'yargs';
+import { removeTempDirectory, cloneRepository } from './fileTasks';
+import * as prompts from './prompts';
 
-const QUESTIONS = [
-  {
-    name: 'Source Url',
-    message: 'Enter the source repository github url :',
-    type: 'input',
-    when: () => !yargs.argv.source_url,
-    validate: (input: string) => {
-      if (
-        /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/.test(
-          input,
-        )
-      ) {
-        // @todo: download the repo and save as a zip file.
-        return true;
-      }
-      return 'Not a valid git repository url.';
-    },
-  },
-];
+let source_repository_url: any = false;
+let source_slug: any = false;
 
-inquirer.prompt(QUESTIONS).then((answers: any) => {
-  const answer: any = { ...answers, ...yargs.argv };
+const startGenerator = async () => {
 
-  const gitSourceUrl = answer.source_url;
+    await removeTempDirectory();
+    source_repository_url = await prompts.askForSourceUrl();
 
-  console.log(gitSourceUrl);
-});
+    if (source_repository_url) source_slug = await cloneRepository(source_repository_url);
+    
+}
+startGenerator();
