@@ -46,6 +46,7 @@ const startGenerator = async () => {
   if (repoCreatedSshUrl) {
     await addParticipantAsCollaborator(targetRepoSlug, targetRepoType == 'Organization' ? organization_github_slug : own_github_username, participant_username);
     await pushRepository(source_slug, repoCreatedSshUrl);
+    await removeTempDirectory();
   }
 }
 startGenerator();
