@@ -34,7 +34,7 @@ const startGenerator = async () => {
   if (own_github_username) participant_username = await prompts.askForParticipantUsername();
 
   if (participant_username) {
-    targetRepoSlug = source_slug + '-' + challenge_slug + '-' + participant_username;
+    targetRepoSlug = challenge_slug + '-' + participant_username;
     if (targetRepoType == 'Organization' && organization_github_slug) {
       repoCreatedSshUrl = await createOrganizationRepository(targetRepoSlug, organization_github_slug);
     }
