@@ -22,7 +22,7 @@ export const cloneRepository = async (gitRepositoryUrl: string) => {
         else {
             shell.exec('mkdir temp', { async: true });
         }
-        const output = shell.exec('cd temp && git clone ' + gitRepositoryUrl).code
+        const output = shell.exec('cd temp && git clone && rm -rf .git ' + gitRepositoryUrl).code
         if (output === 0) {
             shell.cd(repoName[repoName.length - 1]);
             let repoSlug = repoName[repoName.length - 1].replace('.git', '');
