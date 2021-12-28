@@ -10,6 +10,7 @@ let own_github_username: any = false;
 let organization_github_slug: any = false;
 let targetRepoType: any = 'Organization';
 let participant_username: any = false;
+let targetRepoSlug: any = false;
 
 
 const startGenerator = async () => {
@@ -29,6 +30,17 @@ const startGenerator = async () => {
 
     if (challenge_slug) own_github_username = await prompts.askForOwnGithubUsername();
     if (own_github_username) participant_username = await prompts.askForParticipantUsername();
+
+    if (participant_username) {
+      targetRepoSlug = source_slug + '-' + challenge_slug + '-' + participant_username;
+  }
+
+    console.log('Target Repo Slug:', targetRepoSlug);
+    console.log('Target username:', organization_github_slug ? organization_github_slug : own_github_username);
+    console.log('Target Repo Type:', targetRepoType);
+    console.log('Participant username:', participant_username);
+    console.log('Own username:', own_github_username);
+    
     
 }
 startGenerator();
