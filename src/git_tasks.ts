@@ -37,7 +37,6 @@ export const createOrganizationRepository = async (repositoryName: string, organ
                 org: organizationSlug,
                 name: repositoryName
             })
-            console.log('Repository Created: ', createRepo);
             if (createRepo.status === 201) {
                 return createRepo.data.ssh_url;
             }
