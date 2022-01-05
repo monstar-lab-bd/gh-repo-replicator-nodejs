@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { createOrganizationRepository, createPersonalRepository, addParticipantAsCollaborator } from './git_tasks';
+import { createOrganizationRepository, createPersonalRepository, addParticipantAsCollaborator, githubPersonalAccessToken, updateGithubPersonalAccessToken, showUserInfo } from './git_tasks';
 import { removeTempDirectory, cloneRepository, pushRepository } from './fileTasks';
 import * as prompts from './prompts';
+
 
 let source_repository_url: any = false;
 let source_slug: any = false;
@@ -18,6 +19,17 @@ let repoCreatedSshUrl: any = false;
 const startGenerator = async () => {
 
   await removeTempDirectory();
+
+  if(!githubPersonalAccessToken){
+    let token = await prompts.askForGithubPersonalAccessToken();
+    await updateGithubPersonalAccessToken(token);
+
+  }
+  else{
+    console.log("Using existing Github Personal Access Token");
+    await updateGithubPersonalAccessToken();
+  }
+  own_github_username = await showUserInfo();
   source_repository_url = await prompts.askForSourceUrl();
 
   if (source_repository_url) source_slug = await cloneRepository(source_repository_url);
@@ -30,8 +42,10 @@ const startGenerator = async () => {
     }
   }
 
-  if (challenge_slug) own_github_username = await prompts.askForOwnGithubUsername();
-  if (own_github_username) participant_username = await prompts.askForParticipantUsername();
+  // if (challenge_slug) own_github_username = await prompts.askForOwnGithubUsername();
+  // if (own_github_username) participant_username = await prompts.askForParticipantUsername();
+
+  if (challenge_slug) participant_username = await prompts.askForParticipantUsername();
 
   if (participant_username) {
     targetRepoSlug = challenge_slug + '-' + participant_username;

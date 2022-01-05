@@ -3,11 +3,16 @@ import { Octokit } from "@octokit/core";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const githubAccessToken = process.env.GITHUB_TOKEN;
-const octokit = new Octokit({
-    auth: githubAccessToken,
-});
+let githubPersonalAccessToken = process.env.GITHUB_TOKEN || null;
+let octokit: any = null;
 
+export const updateGithubPersonalAccessToken = async (token?: string) => {
+    octokit = new Octokit({
+      auth: githubPersonalAccessToken || token,
+  });
+}
+
+export{ githubPersonalAccessToken, octokit };
 
 
 export const createPersonalRepository = async (repositoryName: string) => {
@@ -75,4 +80,11 @@ export const addParticipantAsCollaborator = async (targetRepoSlug: string, owner
         }
     }
     return false;
+}
+
+export const showUserInfo = async () => {
+
+  const response = await octokit.request("GET /user");
+  console.log('Hello ', response.data.name, '! You are logged in as: ', response.data.login);
+  return response.data.login;
 }
