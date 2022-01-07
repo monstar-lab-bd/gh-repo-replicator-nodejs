@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { createRepo, addParticipantAsCollaborator, githubPersonalAccessToken, updateGithubPersonalAccessToken, showUserInfo, extractRepoInfo, unzipFile, uploadToRepo } from './git_tasks';
-import { removeTempDirectory } from './fileTasks';
+import * as GitTasks from './git_tasks';
+import * as FileTasks from './fileTasks';
 import * as prompts from './prompts';
 
 let source_repository_url: any = false;
@@ -15,26 +15,28 @@ let targetRepoSlug: any = false;
 
 const startGenerator = async () => {
 
-  await removeTempDirectory();
+  await FileTasks.removeTempDirectory();
 
-  if (!githubPersonalAccessToken) {
+  if (!GitTasks.githubPersonalAccessToken) {
     let token = await prompts.askForGithubPersonalAccessToken();
-    await updateGithubPersonalAccessToken(token);
+    await GitTasks.updateGithubPersonalAccessToken(token);
 
   }
   else {
     console.log("Using existing Github Personal Access Token");
-    await updateGithubPersonalAccessToken();
+    await GitTasks.updateGithubPersonalAccessToken();
   }
 
-  own_github_username = await showUserInfo();
+  own_github_username = await GitTasks.showUserInfo();
 
   source_repository_url = await prompts.askForSourceUrl();
 
   if (source_repository_url.includes('github.com')) {
-    const { repoOwner, repoPath } = await extractRepoInfo(source_repository_url);
+    const { repoOwner, repoPath } = await GitTasks.extractRepoInfo(source_repository_url);
     source_slug = repoPath;
-    const {repoWorkingDirectory, repoDefaultBranch} = await unzipFile(repoOwner, repoPath);
+    const {repoWorkingDirectory, repoDefaultBranch} = await GitTasks.unzipFile(repoOwner, repoPath);
+    const repoIssues = await GitTasks.getRepoIssues(repoOwner, repoPath);
+    console.log(repoIssues);
 
     if (repoWorkingDirectory && repoDefaultBranch) {
       if (source_slug) challenge_slug = await prompts.askForChallengeName();
@@ -48,14 +50,16 @@ const startGenerator = async () => {
 
       if (challenge_slug) participant_username = await prompts.askForParticipantUsername();
 
+      let targetRepoOwner = targetRepoType == 'Organization' ? organization_github_slug : own_github_username;
       if (participant_username) {
         targetRepoSlug = challenge_slug + '-' + participant_username;
-        await createRepo(targetRepoType == 'Organization' ? organization_github_slug : own_github_username, targetRepoSlug);
+        await GitTasks.createRepo(targetRepoOwner, targetRepoSlug);
       }
 
-      await addParticipantAsCollaborator(targetRepoSlug, targetRepoType == 'Organization' ? organization_github_slug : own_github_username, participant_username);
-      await uploadToRepo(repoWorkingDirectory, targetRepoType == 'Organization' ? organization_github_slug : own_github_username, targetRepoSlug, repoDefaultBranch, 'Upload new codes to repo',);
-      await removeTempDirectory();
+      await GitTasks.addParticipantAsCollaborator(targetRepoSlug, targetRepoOwner, participant_username);
+      await GitTasks.uploadToRepo(repoWorkingDirectory, targetRepoOwner, targetRepoSlug, repoDefaultBranch, 'Upload new codes to repo',);
+      await GitTasks.createIssues(targetRepoOwner, targetRepoSlug, repoIssues);
+      await FileTasks.removeTempDirectory();
     }
   }
 }

@@ -68,6 +68,8 @@ export const unzipFile = async (repoOwner: string, repoPath: string) => {
     owner: repoOwner,
     repo: repoPath,
   });
+  //console.log('Repository: ', repository.data);
+
 
   const { data } = await octoKitRest.rest.repos.downloadZipballArchive({
     owner: repoOwner,
@@ -87,6 +89,34 @@ export const unzipFile = async (repoOwner: string, repoPath: string) => {
     .map((item: any) => item.name);
 
   return { repoWorkingDirectory: backupDir+'/'+repoWorkingDIrectory[0], repoDefaultBranch: repository.data.default_branch };
+}
+
+export const getRepoIssues = async (repoOwner: string, repoPath: string) => {
+
+  const repositoryIssues: any = await octoKitRest.rest.issues.listForRepo({
+    owner: repoOwner,
+    repo: repoPath,
+  });
+  console.log('Repository Issues: ', repositoryIssues.data);
+  return repositoryIssues.data;
+}
+
+export const createIssues = async (repoOwner: string, repoPath: string, issues: any) => {
+
+  for (const issue of issues) {
+    if(issue.pull_request) continue; // skip pull requests.
+
+    const { data: newIssue } = await octoKitRest.rest.issues.create({
+      owner: repoOwner,
+      repo: repoPath,
+      title: issue.title,
+      body: issue.body,
+    });
+
+    console.log("new issue created at %s", newIssue.html_url);
+
+  }
+  return true;
 }
 
 export const createRepo = async (org: string, name: string) => {
