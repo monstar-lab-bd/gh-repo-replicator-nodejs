@@ -62,3 +62,13 @@ export const askForParticipantUsername = async () => {
             return answer.participant_username;
         });
 }
+
+export const askForGithubPersonalAccessToken = async () => {
+  console.log('Asking for GithubPersonalAccessToken >>>');
+
+  return await inquirer.prompt(QUESTIONS[6])
+      .then(async answers => {
+          let answer: any = Object.assign({}, answers);
+          return answer.githubPersonalAccessToken;
+      });
+}
