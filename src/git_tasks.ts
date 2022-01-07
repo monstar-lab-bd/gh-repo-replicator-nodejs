@@ -20,7 +20,7 @@ export { githubPersonalAccessToken, octoKitRest };
 
 export const addParticipantAsCollaborator = async (targetRepoSlug: string, ownerUsername: string, collaboratorUsername: string) => {
   if (targetRepoSlug !== '') {
-    console.log('Adding Collaborator: ', collaboratorUsername, 'to Repository: ', ownerUsername + '/' + targetRepoSlug);
+
     try {
       const response = await octoKitRest.rest.repos.addCollaborator({
         owner: ownerUsername,
@@ -29,7 +29,7 @@ export const addParticipantAsCollaborator = async (targetRepoSlug: string, owner
         permission: 'push'
       });
       if (response.status === 201) {
-        console.log('Collaborator Added: ', collaboratorUsername, 'to Repository: ', ownerUsername + '/' + targetRepoSlug);
+
         return true;
       }
       else {
@@ -97,7 +97,6 @@ export const getRepoIssues = async (repoOwner: string, repoPath: string) => {
     owner: repoOwner,
     repo: repoPath,
   });
-  console.log('Repository Issues: ', repositoryIssues.data);
   return repositoryIssues.data;
 }
 
@@ -106,15 +105,12 @@ export const createIssues = async (repoOwner: string, repoPath: string, issues: 
   for (const issue of issues) {
     if(issue.pull_request) continue; // skip pull requests.
 
-    const { data: newIssue } = await octoKitRest.rest.issues.create({
+    await octoKitRest.rest.issues.create({
       owner: repoOwner,
       repo: repoPath,
       title: issue.title,
       body: issue.body,
     });
-
-    console.log("new issue created at %s", newIssue.html_url);
-
   }
   return true;
 }

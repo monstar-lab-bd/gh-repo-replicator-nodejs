@@ -8,7 +8,6 @@ if (!shell.which('git')) {
 export const removeTempDirectory = async () => {
   if (shell.test('-d', 'temp')) {
     shell.rm('-rf', 'temp');
-    console.log('Temp Directory Cleaned...');
   }
   shell.exec('mkdir temp', { async: true });
 }
