@@ -3,6 +3,7 @@
 import * as GitTasks from './git_tasks';
 import * as FileTasks from './fileTasks';
 import * as prompts from './prompts';
+import * as chalk from 'chalk';
 
 let source_repository_url: any = false;
 let source_slug: any = false;
@@ -14,16 +15,15 @@ let participant_username: any = false;
 let targetRepoSlug: any = false;
 
 const startGenerator = async () => {
-
+  console.info(chalk.blue.cyan('Welcome To Github Repo Replicator'));
   await FileTasks.removeTempDirectory();
 
   if (!GitTasks.githubPersonalAccessToken) {
     let token = await prompts.askForGithubPersonalAccessToken();
     await GitTasks.updateGithubPersonalAccessToken(token);
-
   }
   else {
-    console.log("Using existing Github Personal Access Token");
+    console.info(chalk.blue.cyan('Using existing Github Personal Access Token from ENV'));
     await GitTasks.updateGithubPersonalAccessToken();
   }
 
@@ -36,7 +36,6 @@ const startGenerator = async () => {
     source_slug = repoPath;
     const {repoWorkingDirectory, repoDefaultBranch} = await GitTasks.unzipFile(repoOwner, repoPath);
     const repoIssues = await GitTasks.getRepoIssues(repoOwner, repoPath);
-    console.log(repoIssues);
 
     if (repoWorkingDirectory && repoDefaultBranch) {
       if (source_slug) challenge_slug = await prompts.askForChallengeName();
@@ -56,10 +55,22 @@ const startGenerator = async () => {
         await GitTasks.createRepo(targetRepoOwner, targetRepoSlug);
       }
 
+      console.log(chalk.blue('Adding Participant as Collaborator: ', participant_username, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
       await GitTasks.addParticipantAsCollaborator(targetRepoSlug, targetRepoOwner, participant_username);
+      console.log(chalk.green('Collaborator Added: ', participant_username, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
+
+      console.log(chalk.blue('Committing to  Repository: ', targetRepoOwner + '/' + targetRepoSlug));
       await GitTasks.uploadToRepo(repoWorkingDirectory, targetRepoOwner, targetRepoSlug, repoDefaultBranch, 'Upload new codes to repo',);
-      await GitTasks.createIssues(targetRepoOwner, targetRepoSlug, repoIssues);
+      console.log(chalk.green('Committed to  Repository: '));
+
+      if(repoIssues){
+        console.log(chalk.blue('Adding Issues to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
+        await GitTasks.createIssues(targetRepoOwner, targetRepoSlug, repoIssues);
+        console.log(chalk.green('Issues Added'));
+      }
+
       await FileTasks.removeTempDirectory();
+      console.log(chalk.green.bold('Repository Replicated Successfully'));
     }
   }
 }
