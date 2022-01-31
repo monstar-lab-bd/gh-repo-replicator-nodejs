@@ -71,3 +71,12 @@ export const askForGithubPersonalAccessToken = async () => {
       return answer.githubPersonalAccessToken;
     });
 }
+
+export const askForRepoDuplicate = async () => {
+  // Asking for GithubPersonalAccessToken >>>
+  return await inquirer.prompt(QUESTIONS[7])
+    .then(async answers => {
+      let answer: any = Object.assign({}, answers);
+      return answer.duplicate_repo;
+    });
+}

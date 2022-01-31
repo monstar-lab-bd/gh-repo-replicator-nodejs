@@ -88,7 +88,7 @@ export const unzipFile = async (repoOwner: string, repoPath: string) => {
     .filter((item: any) => item.isDirectory())
     .map((item: any) => item.name);
 
-  return { repoWorkingDirectory: backupDir+'/'+repoWorkingDIrectory[0], repoDefaultBranch: repository.data.default_branch };
+  return { repoWorkingDirectory: backupDir + '/' + repoWorkingDIrectory[0], repoDefaultBranch: repository.data.default_branch };
 }
 
 export const getRepoIssues = async (repoOwner: string, repoPath: string) => {
@@ -97,13 +97,60 @@ export const getRepoIssues = async (repoOwner: string, repoPath: string) => {
     owner: repoOwner,
     repo: repoPath,
   });
-  return repositoryIssues.data;
+
+  let issuesData: any = [];
+  let pullsData: any = [];
+
+  for (const issue of repositoryIssues.data) {
+    if (issue.pull_request) {
+      const pullDetails = await getRepoPullRequestById(repoOwner, repoPath, issue.number);
+      pullsData.push({
+        owner: pullDetails.user.login,
+        repo: repoPath,
+        head: pullDetails.head.ref,
+        base: pullDetails.base.ref,
+        number: pullDetails.number,
+        title: pullDetails.title,
+        body: pullDetails.body,
+        assignees: pullDetails.assignees,
+      })
+    }
+    else {
+      issuesData.push({
+        owner: repoOwner,
+        repo: repoPath,
+        number: issue.number,
+        title: issue.title,
+        body: issue.body,
+        state: issue.state,
+        labels: issue.labels,
+        assignees: issue.assignees,
+        milestone: issue.milestone,
+        locked: issue.locked,
+        comments: issue.comments
+      }
+      )
+    }
+  }
+
+  return { repoIssues: issuesData, repoPulls: pullsData };
+}
+
+export const getRepoPullRequestById = async (repoOwner: string, repoPath: string, PullNumber: Number) => {
+
+  const repositoryPullRequest: any = await octoKitRest.rest.pulls.get({
+    owner: repoOwner,
+    repo: repoPath,
+    pull_number: PullNumber
+  });
+
+  return repositoryPullRequest.data;
 }
 
 export const createIssues = async (repoOwner: string, repoPath: string, issues: any) => {
 
   for (const issue of issues) {
-    if(issue.pull_request) continue; // skip pull requests.
+    if (issue.pull_request) continue; // skip pull requests.
 
     await octoKitRest.rest.issues.create({
       owner: repoOwner,
@@ -115,8 +162,29 @@ export const createIssues = async (repoOwner: string, repoPath: string, issues: 
   return true;
 }
 
+export const createPulls = async (repoOwner: string, repoPath: string, pulls: any) => {
+
+  for (const pull of pulls) {
+    try{
+      await octoKitRest.rest.pulls.create({
+        owner: repoOwner,
+        repo: repoPath,
+        title: pull.title,
+        body: pull.body,
+        head: pull.head,
+        base: pull.base,
+      });
+    }
+    catch(e){
+      console.log('Pull Request Creation Failed: ', e);
+
+    }
+  }
+  return true;
+}
+
 export const createRepo = async (org: string, name: string) => {
-  await octoKitRest.repos.createInOrg({ org, name, auto_init: true })
+  await octoKitRest.repos.createInOrg({ org, name, auto_init: false })
 }
 
 export const uploadToRepo = async (
