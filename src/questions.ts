@@ -1,5 +1,43 @@
 import yargs = require("yargs");
 
+export const argv = yargs.options({
+    source: {
+        alias: 'source',
+        description: 'Source URL'
+    },
+    token: {
+        alias: 'token',
+        default: false,
+        description: 'Github Personal Access Token'
+    },
+    type: {
+        alias: 'type',
+        choices: ['Organization', 'Personal'],
+        demandOption: true,
+        description: 'Target Repository Type'
+    },
+    org_slug: {
+      alias: 'org_slug',
+      description: 'Target Organization Github Slug'
+  },
+    target: {
+        alias: 'target',
+        description: 'Challenge Name/Target Repo Name'
+    },
+    target_user: {
+        alias: 'target_user',
+        description: 'Target User/Participant UserName'
+    },
+    mirror: {
+      alias: 'mirror',
+      choices: ['y', 'n'],
+      default: 'y',
+      description: 'Duplicate/Mirror Source Repository?'
+  },
+
+  })
+    .argv;
+
 const QUESTIONS = [
   {
     name: 'source',
