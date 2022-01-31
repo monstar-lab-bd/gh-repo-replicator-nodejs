@@ -92,7 +92,13 @@ const QUESTIONS = [
       if (input.startsWith("ghp_") && input.length == 40) return true;
       else return 'Invalid Github Access Token.';
     }
-  }
+  },
+  {
+    type: 'confirm',
+    name: 'duplicate_repo',
+    message: 'Do you want to preserve Existing Pull Requests and Issues?',
+    default: false,
+  },
 ];
 
 export default QUESTIONS;

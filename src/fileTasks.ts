@@ -6,26 +6,24 @@ if (!shell.which('git')) {
 }
 
 export const removeTempDirectory = async () => {
-  if (shell.test('-d', 'temp')) {
-    shell.rm('-rf', 'temp');
+  if (shell.test('-d', '../temp')) {
+    shell.rm('-rf', '../temp');
   }
-  shell.exec('mkdir temp', { async: true });
+  shell.exec('mkdir ../temp', { async: true });
 }
 export const cloneRepository = async (gitRepositoryUrl: string) => {
   try {
-    let repoName = gitRepositoryUrl.split('/')
+    //let repoName = gitRepositoryUrl.split('/')
 
-    if (shell.test('-d', 'temp')) {
-      shell.cd('temp');
-    }
-    else {
-      shell.exec('mkdir temp', { async: true });
-    }
-    const output = shell.exec('cd temp && git clone && rm -rf .git ' + gitRepositoryUrl).code
+    // if (shell.test('-d', 'temp')) {
+    //   shell.cd('temp');
+    // }
+    // else {
+    //   shell.exec('mkdir temp', { async: true });
+    // }
+    const output = shell.exec('git clone --mirror ' + gitRepositoryUrl + ' ../temp').code
     if (output === 0) {
-      shell.cd(repoName[repoName.length - 1]);
-      let repoSlug = repoName[repoName.length - 1].replace('.git', '');
-      return repoSlug;
+      return true;
     }
   }
   catch (e) {
@@ -35,14 +33,16 @@ export const cloneRepository = async (gitRepositoryUrl: string) => {
   return false;
 }
 
-export const pushRepository = async (sourceSlug: string, targetOrigin: string) => {
+export const pushRepository = async (sourceSlug: string, targetOrigin: string, targetRepoOwner: string) => {
   try {
-    shell.cd('temp/' + sourceSlug);
-    if (shell.exec('git remote set-url origin ' + targetOrigin).code !== 0) {
+    shell.cd('../temp/');
+    console.log('cli code.... git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git');
+
+    if (shell.exec('git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git' + ' && git push --all').code !== 0) {
       shell.echo('Error: Git set-url failed');
       shell.exit(1);
     }
-    if (shell.exec("git push").code !== 0) {
+    if (shell.exec("git push -u origin --all").code !== 0) {
       shell.echo('Error: Git push failed');
       shell.exit(1);
     }
