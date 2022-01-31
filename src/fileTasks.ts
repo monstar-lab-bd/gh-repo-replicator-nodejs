@@ -36,7 +36,6 @@ export const cloneRepository = async (gitRepositoryUrl: string) => {
 export const pushRepository = async (sourceSlug: string, targetOrigin: string, targetRepoOwner: string) => {
   try {
     shell.cd('../temp/');
-    console.log('cli code.... git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git');
 
     if (shell.exec('git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git' + ' && git push --all').code !== 0) {
       shell.echo('Error: Git set-url failed');
