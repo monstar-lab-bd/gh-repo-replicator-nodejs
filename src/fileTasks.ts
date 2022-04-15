@@ -13,15 +13,7 @@ export const removeTempDirectory = async () => {
 }
 export const cloneRepository = async (gitRepositoryUrl: string) => {
   try {
-    //let repoName = gitRepositoryUrl.split('/')
-
-    // if (shell.test('-d', 'temp')) {
-    //   shell.cd('temp');
-    // }
-    // else {
-    //   shell.exec('mkdir temp', { async: true });
-    // }
-    const output = shell.exec('git clone --mirror ' + gitRepositoryUrl + ' ../temp').code
+    const output = shell.exec('git clone --mirror ' + gitRepositoryUrl + ' ../temp', { silent: true }).code
     if (output === 0) {
       return true;
     }
@@ -37,11 +29,11 @@ export const pushRepository = async (sourceSlug: string, targetOrigin: string, t
   try {
     shell.cd('../temp/');
 
-    if (shell.exec('git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git' + ' && git push --all').code !== 0) {
+    if (shell.exec('git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git' + ' && git push --all', { silent: true }).code !== 0) {
       shell.echo('Error: Git set-url failed');
       shell.exit(1);
     }
-    if (shell.exec("git push -u origin --all").code !== 0) {
+    if (shell.exec("git push -u origin --all", { silent: true }).code !== 0) {
       shell.echo('Error: Git push failed');
       shell.exit(1);
     }
@@ -51,4 +43,8 @@ export const pushRepository = async (sourceSlug: string, targetOrigin: string, t
     console.log('Push to Repository Error', e);
     throw new Error(e);
   }
+}
+
+export function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

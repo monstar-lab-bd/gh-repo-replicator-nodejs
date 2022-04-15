@@ -19,9 +19,9 @@ export const askForChallengeName = async () => {
   return await inquirer.prompt(QUESTIONS[1])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      console.log('Got Challenge Name: ', answer.challenge_name);
+      console.log('Got Challenge Name: ', answer.destination);
       /* slugify the challenge name */
-      let slug = answer.challenge_name.replace(/\s+/g, '-').toLowerCase();
+      let slug = answer.destination.replace(/\s+/g, '-').toLowerCase();
       return slug;
     });
 }
@@ -41,7 +41,7 @@ export const askForOwnGithubUsername = async () => {
   return await inquirer.prompt(QUESTIONS[3])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      return answer.own_github_username;
+      return answer.username;
     });
 }
 
@@ -51,7 +51,7 @@ export const askForOrganizationGithubSlug = async () => {
   return await inquirer.prompt(QUESTIONS[4])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      return answer.organization_github_slug;
+      return answer.org_slug;
     });
 }
 
@@ -61,24 +61,24 @@ export const askForParticipantUsername = async () => {
   return await inquirer.prompt(QUESTIONS[5])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      return answer.participant_username;
+      return answer.collaborator;
     });
 }
 
-export const askForGithubPersonalAccessToken = async () => {
-  // Asking for GithubPersonalAccessToken >>>
+export const askFortoken = async () => {
+  // Asking for token >>>
   return await inquirer.prompt(QUESTIONS[6])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      return answer.githubPersonalAccessToken;
+      return answer.token;
     });
 }
 
 export const askForRepoDuplicate = async () => {
-  // Asking for GithubPersonalAccessToken >>>
+  // Asking for token >>>
   return await inquirer.prompt(QUESTIONS[7])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
-      return answer.duplicate_repo;
+      return answer.mirror;
     });
 }

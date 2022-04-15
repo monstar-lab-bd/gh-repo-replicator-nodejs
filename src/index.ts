@@ -3,17 +3,18 @@
 import * as GitTasks from './git_tasks';
 import * as FileTasks from './fileTasks';
 import * as prompts from './prompts';
-import * as chalk from 'chalk';
+import chalk = require("chalk");
 import { argv } from './questions';
 
 let source_repository_url: any = false;
 let source_slug: any = false;
 let challenge_slug: any = false;
-let own_github_username: any = false;
-let organization_github_slug: any = false;
+let username: any = false;
+let org_slug: any = false;
 let targetRepoType: any = 'Organization';
-let participant_username: any = false;
+let collaborator: any = false;
 let targetRepoSlug: any = false;
+
 
 
 const startReplicator = async () => {
@@ -22,17 +23,17 @@ const startReplicator = async () => {
   await FileTasks.removeTempDirectory();
 
 
-  if (!GitTasks.githubPersonalAccessToken) {
-    let token = await prompts.askForGithubPersonalAccessToken();
-    await GitTasks.updateGithubPersonalAccessToken(token);
+  if (!GitTasks.token) {
+    let token = await prompts.askFortoken();
+    await GitTasks.updatetoken(token);
   }
   else {
     console.info(chalk.blue.cyan('Using existing Github Personal Access Token'));
-    await GitTasks.updateGithubPersonalAccessToken();
+    await GitTasks.updatetoken(GitTasks.token);
   }
 
   try {
-    own_github_username = await GitTasks.showUserInfo();
+    username = await GitTasks.showUserInfo();
   }
   catch (error) {
     console.info(chalk.red.redBright('Please Check Your Github Personal Access Token and Try Again !!'));
@@ -41,39 +42,45 @@ const startReplicator = async () => {
 
   source_repository_url = argv.source || await prompts.askForSourceUrl();
 
+
+
   if (source_repository_url.includes('github.com')) {
     const { repoOwner, repoPath } = await GitTasks.extractRepoInfo(source_repository_url);
     source_slug = repoPath;
     const { repoIssues, repoPulls } = await GitTasks.getRepoIssues(repoOwner, repoPath);
 
-    if (source_slug) challenge_slug = argv.target || await prompts.askForChallengeName();
+    if (source_slug) challenge_slug = argv.destination || await prompts.askForChallengeName();
+
+
 
     if (challenge_slug) {
       targetRepoType = argv.type || await prompts.askForRepositoryType();
       if (targetRepoType == 'Organization') {
-        organization_github_slug = argv.org_slug || await prompts.askForOrganizationGithubSlug();
+        org_slug = argv.org_slug || await prompts.askForOrganizationGithubSlug();
       }
     }
 
-    if (challenge_slug) participant_username = argv.target_user || await prompts.askForParticipantUsername();
+    if (challenge_slug) collaborator = argv.collaborator || await prompts.askForParticipantUsername();
 
-    let targetRepoOwner = targetRepoType == 'Organization' ? organization_github_slug : own_github_username;
+    let targetRepoOwner = targetRepoType == 'Organization' ? org_slug : username;
 
-    if (participant_username) {
-      targetRepoSlug = challenge_slug + '-' + participant_username;
+    if (collaborator) {
+      targetRepoSlug = challenge_slug + '-' + collaborator;
+
       await GitTasks.createRepo(targetRepoOwner, targetRepoSlug);
     }
 
-    console.log(chalk.blue('Adding Participant as Collaborator: ', participant_username, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
-    await GitTasks.addParticipantAsCollaborator(targetRepoSlug, targetRepoOwner, participant_username);
-    console.log(chalk.green('Collaborator Added: ', participant_username, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
+
+     console.log(chalk.blue('Adding Participant as Collaborator: ', collaborator, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
+    await GitTasks.addParticipantAsCollaborator(targetRepoSlug, targetRepoOwner, collaborator);
+    console.log(chalk.green('Collaborator : user *', collaborator, '* has been added as collaborator'));
 
 
-    let clonedRepo = await FileTasks.cloneRepository(source_repository_url);
-    console.log(chalk.green.greenBright('Repository Cloned Successfully !!', clonedRepo));
+    await FileTasks.cloneRepository(source_repository_url);
+    console.log(chalk.green.greenBright('Repository Cloned Successfully.'));
 
-    let repoPushed = await FileTasks.pushRepository(source_slug, targetRepoSlug, targetRepoOwner);
-    console.log(chalk.green.greenBright('Repository Pushed Successfully !!', repoPushed));
+    await FileTasks.pushRepository(source_slug, targetRepoSlug, targetRepoOwner);
+    console.log(chalk.green.greenBright('Repository Pushed Successfully.'));
 
     if (repoIssues) {
       console.log(chalk.blue('Adding Issues to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
@@ -89,6 +96,7 @@ const startReplicator = async () => {
 
     await FileTasks.removeTempDirectory();
     console.log(chalk.green.bold('Repository Replicated Successfully'));
+    console.log(chalk.green.bold('Here is the Repository URL: https://github.com/' + targetRepoOwner + '/' + targetRepoSlug));
 
   }
 }

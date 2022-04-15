@@ -1,23 +1,28 @@
 import { Octokit as octoKitRestApi } from "@octokit/rest";
 import { argv } from "./questions";
-import * as chalk from 'chalk';
+import { sleep } from "./fileTasks";
+import chalk = require("chalk");
 import * as dotenv from 'dotenv';
+import { exit } from "process";
 dotenv.config();
 
 
-let githubPersonalAccessToken = process.env.GITHUB_TOKEN || argv.token || null;
+
+let token = process.env.GITHUB_TOKEN || argv.token || null;
 let octoKitRest: any = null;
 
-export const updateGithubPersonalAccessToken = async (token?: string) => {
+export const updatetoken = async (token?: string) => {
   octoKitRest = new octoKitRestApi({
-    auth: githubPersonalAccessToken || token,
+    auth: token || token,
   });
 }
 
-export { githubPersonalAccessToken, octoKitRest };
+export { token, octoKitRest };
 
 export const addParticipantAsCollaborator = async (targetRepoSlug: string, ownerUsername: string, collaboratorUsername: string) => {
   if (targetRepoSlug !== '') {
+    await sleep(1000);
+    console.log(ownerUsername, collaboratorUsername, targetRepoSlug);
 
     try {
       const response = await octoKitRest.rest.repos.addCollaborator({
@@ -36,7 +41,7 @@ export const addParticipantAsCollaborator = async (targetRepoSlug: string, owner
 
     }
     catch (e) {
-      console.log('Github Collaborator Add Request Failed: ', e);
+      console.log('Github Collaborator Add Request Failed: ', e.message);
       throw new Error(e);
     }
   }
@@ -157,11 +162,14 @@ export const createPulls = async (repoOwner: string, repoPath: string, pulls: an
 }
 
 export const createRepo = async (org: string, name: string) => {
+
   try{
-    await octoKitRest.repos.createInOrg({ org, name, auto_init: false })
+    await octoKitRest.repos.createInOrg({ org, name, auto_init: false, private: true });
+    return true;
   }
   catch(e){
-    console.log(chalk.red.redBright('Repository Creation Failed: ', e.message));
+    console.log(chalk.red.redBright(e.message));
+    exit()
   }
 }
 

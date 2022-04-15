@@ -1,49 +1,15 @@
+// import yargs = require("yargs");
+import { name } from "ejs";
+import { boolean, string } from "yargs";
 import yargs = require("yargs");
 
-export const argv = yargs.options({
-    source: {
-        alias: 'source',
-        description: 'Source URL'
-    },
-    token: {
-        alias: 'token',
-        default: false,
-        description: 'Github Personal Access Token'
-    },
-    type: {
-        alias: 'type',
-        choices: ['Organization', 'Personal'],
-        demandOption: true,
-        description: 'Target Repository Type'
-    },
-    org_slug: {
-      alias: 'org_slug',
-      description: 'Target Organization Github Slug'
-  },
-    target: {
-        alias: 'target',
-        description: 'Challenge Name/Target Repo Name'
-    },
-    target_user: {
-        alias: 'target_user',
-        description: 'Target User/Participant UserName'
-    },
-    mirror: {
-      alias: 'mirror',
-      choices: ['y', 'n'],
-      default: 'y',
-      description: 'Duplicate/Mirror Source Repository?'
-  },
-
-  })
-    .argv;
 
 const QUESTIONS = [
   {
     name: 'source',
-    message: 'Enter the source repository github url :',
+    message: 'Source repository github url',
     type: 'input',
-    when: () => !yargs.argv['source_url'],
+    when: () => !yargs.argv['source'],
     validate: (input: string) => {
       if (/(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/.test(input)) {
         //@todo: download the repo and save as a zip file.
@@ -51,18 +17,17 @@ const QUESTIONS = [
       }
       else {
         return 'Not a valid git repository url.';
-
       }
     }
   },
   {
-    name: 'challenge_name',
-    message: 'Enter the Coding Challenge Name : e.g. "Coding Challenge 1"',
+    name: 'destination',
+    message: 'Target Repository Name',
     type: 'input',
-    when: () => !yargs.argv['challenge_name'],
+    when: () => !yargs.argv['destination'],
     validate: (input: string) => {
       if (input.length > 0) {
-        console.log('challenge_name input: ', input);
+        console.log('destination input: ', input);
         return true;
       }
       else {
@@ -77,13 +42,13 @@ const QUESTIONS = [
     choices: ['Organization', 'Personal'],
   },
   {
-    name: 'own_github_username',
-    message: 'Enter Your Github username : e.g. "my_username"',
+    name: 'username',
+    message: 'Enter Your Github username',
     type: 'input',
-    when: () => !yargs.argv['own_github_username'],
+    when: () => !yargs.argv['username'],
     validate: (input: string) => {
       if (input.length > 0) {
-        console.log('own_github_username input: ', input);
+        console.log('username input: ', input);
         return true;
       }
       else {
@@ -92,13 +57,13 @@ const QUESTIONS = [
     }
   },
   {
-    name: 'organization_github_slug',
-    message: 'Enter Organization Github slug : e.g. "my_organization"',
+    name: 'org_slug',
+    message: 'Enter Organization Github slug',
     type: 'input',
-    when: () => !yargs.argv['organization_github_slug'],
+    when: () => !yargs.argv['org_slug'],
     validate: (input: string) => {
       if (input.length > 0) {
-        console.log('organization_github_slug input: ', input);
+        console.log('org_slug input: ', input);
         return true;
       }
       else {
@@ -107,13 +72,13 @@ const QUESTIONS = [
     }
   },
   {
-    name: 'participant_username',
-    message: 'Enter the participants Github username : e.g. "participant_username"',
+    name: 'collaborator',
+    message: 'Enter Collaborator Github username',
     type: 'input',
-    when: () => !yargs.argv['participant_username'],
+    when: () => !yargs.argv['collaborator'],
     validate: (input: string) => {
       if (input.length > 0) {
-        console.log('participant_username input: ', input);
+        console.log('collaborator input: ', input);
         return true;
       }
       else {
@@ -122,10 +87,10 @@ const QUESTIONS = [
     }
   },
   {
-    name: 'githubPersonalAccessToken',
-    message: 'Enter your github access token ( Create a personal access token at https://github.com/settings/tokens/new?scopes=repo ) :',
+    name: 'token',
+    message: 'Enter your github access token:',
     type: 'input',
-    when: () => !yargs.argv['githubPersonalAccessToken'],
+    when: () => !yargs.argv['token'],
     validate: (input: string) => {
       if (input.startsWith("ghp_") && input.length == 40) return true;
       else return 'Invalid Github Access Token.';
@@ -133,10 +98,24 @@ const QUESTIONS = [
   },
   {
     type: 'confirm',
-    name: 'duplicate_repo',
-    message: 'Do you want to preserve Existing Pull Requests and Issues?',
+    name: 'mirror',
+    message: 'Import Pull Requests and Issues?',
     default: false,
   },
 ];
+
+export const argv = yargs
+  .options(
+    QUESTIONS.reduce(function (acc: any, curr) {
+      acc[curr.name] = {
+        alias: curr.name.toString().substring(0,1),
+        demandOption: false,
+        description: curr.message,
+        type: curr.type === 'confirm' ? 'boolean'  : 'string',
+      }
+      return acc;
+    }, {})
+  )
+  .argv
 
 export default QUESTIONS;
