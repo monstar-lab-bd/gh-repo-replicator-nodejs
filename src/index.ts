@@ -14,6 +14,7 @@ let org_slug: any = false;
 let targetRepoType: any = 'Organization';
 let collaborator: any = false;
 let targetRepoSlug: any = false;
+let targetRepoDefaultBranch: string = 'main';
 
 
 
@@ -24,12 +25,12 @@ const startReplicator = async () => {
 
 
   if (!GitTasks.token) {
-    let token = await prompts.askFortoken();
-    await GitTasks.updatetoken(token);
+    let token = await prompts.askForToken();
+    await GitTasks.updateToken(token);
   }
   else {
     console.info(chalk.blue.cyan('Using existing Github Personal Access Token'));
-    await GitTasks.updatetoken(GitTasks.token);
+    await GitTasks.updateToken(GitTasks.token);
   }
 
   try {
@@ -48,6 +49,9 @@ const startReplicator = async () => {
     const { repoOwner, repoPath } = await GitTasks.extractRepoInfo(source_repository_url);
     source_slug = repoPath;
     const { repoIssues, repoPulls } = await GitTasks.getRepoIssues(repoOwner, repoPath);
+    const { defaultBranch} = await GitTasks.getRepoDefaultBranch(repoOwner, repoPath);
+    targetRepoDefaultBranch = defaultBranch;
+
 
     if (source_slug) challenge_slug = argv.destination || await prompts.askForChallengeName();
 
@@ -93,6 +97,8 @@ const startReplicator = async () => {
       await GitTasks.createPulls(targetRepoOwner, targetRepoSlug, repoPulls);
       console.log(chalk.green('Pulls Added'));
     }
+
+    await GitTasks.setRepoDefaultBranch(targetRepoOwner, targetRepoSlug, targetRepoDefaultBranch);
 
     await FileTasks.removeTempDirectory();
     console.log(chalk.green.bold('Repository Replicated Successfully'));

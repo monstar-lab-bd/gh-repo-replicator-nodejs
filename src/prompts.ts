@@ -65,7 +65,7 @@ export const askForParticipantUsername = async () => {
     });
 }
 
-export const askFortoken = async () => {
+export const askForToken = async () => {
   // Asking for token >>>
   return await inquirer.prompt(QUESTIONS[6])
     .then(async answers => {

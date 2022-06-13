@@ -11,7 +11,7 @@ dotenv.config();
 let token = process.env.GITHUB_TOKEN || argv.token || null;
 let octoKitRest: any = null;
 
-export const updatetoken = async (token?: string) => {
+export const updateToken = async (token?: string) => {
   octoKitRest = new octoKitRestApi({
     auth: token || token,
   });
@@ -110,6 +110,34 @@ export const getRepoIssues = async (repoOwner: string, repoPath: string) => {
   return { repoIssues: issuesData, repoPulls: pullsData };
 }
 
+export const getRepoDefaultBranch = async (repoOwner: string, repoPath: string) => {
+
+  const repositoryBranches: any = await octoKitRest.repos.get({
+    owner: repoOwner,
+    repo: repoPath,
+  });
+
+  return { defaultBranch: repositoryBranches.data?.default_branch };
+}
+
+export const setRepoDefaultBranch = async (repoOwner: string, repoPath: string, branchName: string) => {
+
+  try {
+    const res = await octoKitRest.repos.update({
+      owner: repoOwner,
+      repo: repoPath,
+      default_branch: branchName,
+    });
+    console.log('Default Branch Set: ', res);
+    // console.log('Default Branch Set: ', res.data.default_branch);
+
+  }
+  catch (e) {
+    console.log(e);
+    return false;
+  }
+}
+
 export const getRepoPullRequestById = async (repoOwner: string, repoPath: string, PullNumber: Number) => {
 
   const repositoryPullRequest: any = await octoKitRest.rest.pulls.get({
@@ -126,15 +154,17 @@ export const createIssues = async (repoOwner: string, repoPath: string, issues: 
   for (const issue of issues) {
     if (issue.pull_request) continue; // skip pull requests.
 
-    try{
+    try {
       await octoKitRest.rest.issues.create({
         owner: repoOwner,
         repo: repoPath,
         title: issue.title,
         body: issue.body,
+        state: issue.state,
+        labels: issue.labels,
       });
     }
-    catch(e){
+    catch (e) {
       console.log('Error Creating Pull Request: ', e.message);
     }
   }
@@ -144,7 +174,7 @@ export const createIssues = async (repoOwner: string, repoPath: string, issues: 
 export const createPulls = async (repoOwner: string, repoPath: string, pulls: any) => {
 
   for (const pull of pulls) {
-    try{
+    try {
       await octoKitRest.rest.pulls.create({
         owner: repoOwner,
         repo: repoPath,
@@ -154,7 +184,7 @@ export const createPulls = async (repoOwner: string, repoPath: string, pulls: an
         base: pull.base,
       });
     }
-    catch(e){
+    catch (e) {
       console.log(chalk.red.redBright('Pull Request Creation Failed: ', e.message));
     }
   }
@@ -163,11 +193,11 @@ export const createPulls = async (repoOwner: string, repoPath: string, pulls: an
 
 export const createRepo = async (org: string, name: string) => {
 
-  try{
+  try {
     await octoKitRest.repos.createInOrg({ org, name, auto_init: false, private: true });
     return true;
   }
-  catch(e){
+  catch (e) {
     console.log(chalk.red.redBright(e.message));
     exit()
   }
