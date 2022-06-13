@@ -128,9 +128,6 @@ export const setRepoDefaultBranch = async (repoOwner: string, repoPath: string, 
       repo: repoPath,
       default_branch: branchName,
     });
-    console.log('Default Branch Set: ', res);
-    // console.log('Default Branch Set: ', res.data.default_branch);
-
   }
   catch (e) {
     console.log(e);

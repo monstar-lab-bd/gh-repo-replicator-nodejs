@@ -1,0 +1,15 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "origin"]
+	url = git@github.com:charuvision/eeee-charuvisionapps.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "feature/get-user-by-email"]
+	remote = origin
+	merge = refs/heads/feature/get-user-by-email
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master

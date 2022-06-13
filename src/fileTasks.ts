@@ -6,14 +6,14 @@ if (!shell.which('git')) {
 }
 
 export const removeTempDirectory = async () => {
-  if (shell.test('-d', '../temp')) {
-    shell.rm('-rf', '../temp');
+  if (shell.test('-d', './gh-temp')) {
+    shell.rm('-rf', './gh-temp');
   }
-  shell.exec('mkdir ../temp', { async: true });
+  shell.exec('mkdir ./gh-temp', { async: true });
 }
 export const cloneRepository = async (gitRepositoryUrl: string) => {
   try {
-    const output = shell.exec('git clone --mirror ' + gitRepositoryUrl + ' ../temp', { silent: true }).code
+    const output = shell.exec('git clone --mirror ' + gitRepositoryUrl + ' ./gh-temp', { silent: true }).code
     if (output === 0) {
       return true;
     }
@@ -27,7 +27,7 @@ export const cloneRepository = async (gitRepositoryUrl: string) => {
 
 export const pushRepository = async (sourceSlug: string, targetOrigin: string, targetRepoOwner: string) => {
   try {
-    shell.cd('../temp/');
+    shell.cd('./gh-temp/');
 
     if (shell.exec('git remote remove origin && git remote add origin ' + 'git@github.com:' + targetRepoOwner + '/' + targetOrigin + '.git' + ' && git push --all', { silent: true }).code !== 0) {
       shell.echo('Error: Git set-url failed');

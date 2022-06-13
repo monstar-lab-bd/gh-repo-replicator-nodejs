@@ -1,5 +1,5 @@
 {
-  "name": "gh-repo-replicator",
+  "name": "cv-gh-repo-replicator",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -7,7 +7,7 @@
     "build": "tsc"
   },
   "bin": {
-    "gh-repo-replicator": "./dist/index.js"
+    "cv-gh-repo-replicator": "./dist/index.js"
   },
   "license": "MIT",
   "devDependencies": {
