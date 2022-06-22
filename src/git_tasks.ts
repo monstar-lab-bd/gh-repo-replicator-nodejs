@@ -1,9 +1,7 @@
 import { Octokit as octoKitRestApi } from "@octokit/rest";
 import { argv } from "./questions";
 import { sleep } from "./fileTasks";
-import chalk = require("chalk");
 import * as dotenv from 'dotenv';
-import { exit } from "process";
 dotenv.config();
 
 
@@ -22,7 +20,6 @@ export { token, octoKitRest };
 export const addParticipantAsCollaborator = async (targetRepoSlug: string, ownerUsername: string, collaboratorUsername: string) => {
   if (targetRepoSlug !== '') {
     await sleep(1000);
-    console.log(ownerUsername, collaboratorUsername, targetRepoSlug);
 
     try {
       const response = await octoKitRest.rest.repos.addCollaborator({
@@ -36,13 +33,12 @@ export const addParticipantAsCollaborator = async (targetRepoSlug: string, owner
         return true;
       }
       else {
-        console.log('Error: ', response.status);
+        throw new Error(response.status);
       }
 
     }
     catch (e) {
-      console.log('Github Collaborator Add Request Failed: ', e.message);
-      throw new Error(e);
+      throw new Error(e.message);
     }
   }
   return false;
@@ -130,7 +126,6 @@ export const setRepoDefaultBranch = async (repoOwner: string, repoPath: string, 
     });
   }
   catch (e) {
-    console.log(e);
     return false;
   }
 }
@@ -162,7 +157,7 @@ export const createIssues = async (repoOwner: string, repoPath: string, issues: 
       });
     }
     catch (e) {
-      console.log('Error Creating Pull Request: ', e.message);
+      throw new Error(e.message);
     }
   }
   return true;
@@ -182,21 +177,27 @@ export const createPulls = async (repoOwner: string, repoPath: string, pulls: an
       });
     }
     catch (e) {
-      console.log(chalk.red.redBright('Pull Request Creation Failed: ', e.message));
+      throw new Error(e.message);
     }
   }
   return true;
 }
 
-export const createRepo = async (org: string, name: string) => {
+export const createRepo = async (org: string, name: string, personal: boolean) => {
 
   try {
-    await octoKitRest.repos.createInOrg({ org, name, auto_init: false, private: true });
+    if(!personal){
+    const res = await octoKitRest.repos.createInOrg({ org, name, auto_init: false, private: true });
+
+    }
+    else{
+      const res = await octoKitRest.repos.createForAuthenticatedUser({ name, auto_init: false, private: true });
+
+    }
     return true;
   }
   catch (e) {
-    console.log(chalk.red.redBright(e.message));
-    exit()
+    throw new Error(e.message);
   }
 }
 

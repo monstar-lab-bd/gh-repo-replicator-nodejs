@@ -19,7 +19,6 @@ let targetRepoDefaultBranch: string = 'main';
 
 
 const startReplicator = async () => {
-  console.clear();
   console.info(chalk.blue.cyan('Welcome To Github Repo Replicator'));
   await FileTasks.removeTempDirectory();
 
@@ -46,7 +45,6 @@ const startReplicator = async () => {
 
 
   if (source_repository_url.includes('github.com')) {
-    console.clear();
     const { repoOwner, repoPath } = await GitTasks.extractRepoInfo(source_repository_url);
     source_slug = repoPath;
     const { repoIssues, repoPulls } = await GitTasks.getRepoIssues(repoOwner, repoPath);
@@ -59,10 +57,8 @@ const startReplicator = async () => {
 
 
     if (challenge_slug) {
-      console.clear();
       targetRepoType = argv.type || await prompts.askForRepositoryType();
       if (targetRepoType == 'Organization') {
-        console.clear();
         org_slug = argv.org_slug || await prompts.askForOrganizationGithubSlug();
       }
     }
@@ -72,13 +68,18 @@ const startReplicator = async () => {
     let targetRepoOwner = targetRepoType == 'Organization' ? org_slug : username;
 
     if (collaborator) {
-      console.clear();
       targetRepoSlug = challenge_slug + '-' + collaborator;
 
-      await GitTasks.createRepo(targetRepoOwner, targetRepoSlug);
+      if (targetRepoType == 'Organization') {
+        await GitTasks.createRepo(targetRepoOwner, targetRepoSlug, false);
+      }
+      else {
+        await GitTasks.createRepo(username, targetRepoSlug, true);
+      }
     }
 
-    console.clear();
+
+
     console.log(chalk.blue('Adding Participant as Collaborator: ', collaborator, 'to Repository: ', targetRepoOwner + '/' + targetRepoSlug));
     await GitTasks.addParticipantAsCollaborator(targetRepoSlug, targetRepoOwner, collaborator);
     console.log(chalk.green('Collaborator : user *', collaborator, '* has been added as collaborator'));
@@ -105,7 +106,7 @@ const startReplicator = async () => {
     await GitTasks.setRepoDefaultBranch(targetRepoOwner, targetRepoSlug, targetRepoDefaultBranch);
 
     await FileTasks.removeTempDirectory();
-    console.clear();
+
     console.log(chalk.green.bold('Repository Replicated Successfully'));
     console.log(chalk.green.bold('Here is the Repository URL: https://github.com/' + targetRepoOwner + '/' + targetRepoSlug));
 

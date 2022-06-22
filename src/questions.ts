@@ -1,6 +1,3 @@
-// import yargs = require("yargs");
-import { name } from "ejs";
-import { boolean, string } from "yargs";
 import yargs = require("yargs");
 
 
@@ -89,7 +86,7 @@ const QUESTIONS = [
   {
     name: 'token',
     message: 'Enter your github access token:',
-    type: 'input',
+    type: 'password',
     when: () => !yargs.argv['token'],
     validate: (input: string) => {
       if (input.startsWith("ghp_") && input.length == 40) return true;

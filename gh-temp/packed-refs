@@ -1,5 +1,0 @@
-# pack-refs with: peeled fully-peeled sorted 
-67c168cf3ff3448aa7ce7004cd85b3df13717822 refs/heads/feature/get-user-by-email
-67a400cae08c10d620915f07e30c19d8b5e88f60 refs/heads/master
-67c168cf3ff3448aa7ce7004cd85b3df13717822 refs/pull/3/head
-9787fb903b28c884b6f93584f344e36b00e73518 refs/pull/3/merge

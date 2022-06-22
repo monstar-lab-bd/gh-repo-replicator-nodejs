@@ -1,38 +1,29 @@
 {
-  "name": "cv-gh-repo-replicator",
+  "name": "@mlbd/gh-repo-replicator",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "author": "Kazi Shiplu <kazi.sayed@monstar-lab.com>",
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "tsc"
   },
   "bin": {
-    "cv-gh-repo-replicator": "./dist/index.js"
+    "@mlbd/gh-repo-replicator": "./dist/index.js"
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/ejs": "^2.6.0",
     "@types/inquirer": "^0.0.43",
-    "@types/node": "^10.9.4",
     "@types/shelljs": "^0.8.0",
     "@types/yargs": "^11.1.8",
-    "shx": "^0.3.2",
     "ts-node": "^7.0.1",
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "@octokit/core": "^3.5.1",
     "@octokit/rest": "^18.12.0",
-    "adm-zip": "^0.5.9",
-    "axios": "^0.24.0",
     "chalk": "^4.0.0",
-    "commander": "^9.0.0",
     "dotenv": "^10.0.0",
-    "ejs": "^2.6.1",
-    "globby": "^11.0.4",
     "inquirer": "^6.2.0",
     "shelljs": "^0.8.4",
-    "superagent": "^6.1.0",
     "yargs": "^12.0.5"
   }
 }

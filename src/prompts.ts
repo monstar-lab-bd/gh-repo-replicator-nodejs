@@ -5,7 +5,6 @@ import QUESTIONS from './questions';
 
 export const askForSourceUrl = async () => {
   //Asking for askForSourceUrl >>>
-// console.log(answercli);
 
   return await inquirer.prompt(QUESTIONS[0])
     .then(async answers => {
@@ -75,7 +74,7 @@ export const askForToken = async () => {
 }
 
 export const askForRepoDuplicate = async () => {
-  // Asking for token >>>
+  // Import Pull Requests and Issues >>>
   return await inquirer.prompt(QUESTIONS[7])
     .then(async answers => {
       let answer: any = Object.assign({}, answers);
